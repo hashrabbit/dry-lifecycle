@@ -1,15 +1,16 @@
 # Dry::Lifecycle
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/dry/lifecycle`. To experiment with that code, run `bin/console` for an interactive prompt.
+A StateMachine implementation designed to fit in with the [dry-rb][http://dry-rb.org/] family of gems. Provides a DSL for specifying the allowed state values that an
+object can have, as well as which stats are allowed _exits_ from the current state. Exit state transitions can be guarded.
 
-TODO: Delete this and the text above, and describe your gem
+You define your Lifecycle, and then send your object (which must have a :state attribute), and the new state you want the object to be in, to the #call method of your Lifecycle instance. If the transition succeeds, Lifecycle returns a dry-monads `Success()` instance, wrapping the object in its new state. Otherwise, it returns a `Failure()` instance, wrapping either the exception that was raised, or the String messages of the failing guard classes.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'dry-lifecycle'
+gem 'dry-lifecycle', git: 'https://github.com/hashrabbit/dry-lifecycle.git'
 ```
 
 And then execute:
@@ -19,16 +20,6 @@ And then execute:
 Or install it yourself as:
 
     $ gem install dry-lifecycle
-
-## Usage
-
-TODO: Write usage instructions here
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## Contributing
 
