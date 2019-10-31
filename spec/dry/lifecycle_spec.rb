@@ -41,4 +41,24 @@ RSpec.describe Dry::Lifecycle do
       expect(result.state).to eq('two')
     end
   end
+
+  context 'when changing state with a :persist function defined' do
+    let(:container) { Dry::Container.new.register(:persist, persist) }
+    let(:lifecycle) do
+      Class.new(Dry.Lifecycle(container: container, persist: :persist)) do
+        define do
+          state(:one) { exit(:two) }
+          state(:two)
+        end
+      end.new
+    end
+    let(:object) { Struct.new(:state).new('one') }
+    let(:persist) { double(:persist, call: object) }
+    let(:result) { lifecycle.call(object, :two) }
+
+    it 'returns Success, with state changed and :persist called' do
+      expect(result.value!.state).to eq('two')
+      expect(persist).to have_received(:call).once
+    end
+  end
 end
