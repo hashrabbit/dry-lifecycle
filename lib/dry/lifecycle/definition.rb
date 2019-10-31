@@ -9,7 +9,7 @@ module Dry
   class Lifecycle
     class Definition
       include Dry::Monads[:result, :list, :try]
-      include Dry::Monads::Do.for(:enter)
+      include Dry::Monads::Do.for(:enter, :state?)
 
       attr_reader :states, :container
 
@@ -33,6 +33,11 @@ module Dry
         exit = yield validate_exit(state, to.to_sym)
         yield pass_guards(state, exit, object)
         enter_state(object, exit)
+      end
+
+      def state?(object, state)
+        current = yield validate_starting(object.state.to_sym)
+        state == current ? Success(state) : Failure(state)
       end
 
       private

@@ -19,5 +19,7 @@ module Dry
         super("State :#{state} has not been defined")
       end
     end
+
+    NoopError = Class.new(Error)
   end
 end
