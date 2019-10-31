@@ -8,11 +8,14 @@ require 'dry/matcher/result_matcher'
 require 'dry/lifecycle/version'
 require 'dry/lifecycle/errors'
 require 'dry/lifecycle/definition'
+require 'dry/lifecycle/persistor'
 
 module Dry
-  def self.Lifecycle(container:)
+  def self.Lifecycle(container:, **opts)
     Class.new(Dry::Lifecycle) do
       config.container = container
+      config.persist = opts[:persist]
+      config.persist_raises = opts[:persist_raises]
     end
   end
 
@@ -20,6 +23,8 @@ module Dry
     extend Dry::Configurable
 
     setting :container, {}
+    setting :persist, nil
+    setting :persist_raises, nil
 
     class << self
       attr_reader :definition
@@ -32,7 +37,12 @@ module Dry
     include Dry::Matcher.for(:call, with: Dry::Matcher::ResultMatcher)
 
     def call(object, new_state)
-      _definition.enter(object, new_state)
+      result = _definition.enter(object, new_state)
+      result.tee { |obj| Persistor.call(obj, self.class.config.to_h) }
+    end
+
+    def in_state?(object, state)
+      _definition.state?(object, state)
     end
 
     def states
