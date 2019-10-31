@@ -148,6 +148,46 @@ module Dry
           end
         end
       end
+
+      describe '#state?(object, state)' do
+        let(:defi) do
+          described_class.new(container: {}) do
+            state(:one)
+            state(:two)
+          end
+        end
+        let(:result) { defi.state?(object, state) }
+
+        context 'when the object is in the specified state' do
+          let(:object) { Struct.new(:state).new(:one) }
+          let(:state) { :one }
+
+          it 'returns Success, wrapping the state' do
+            expect(result).to be_a(Dry::Monads::Success)
+            expect(result.value!).to eq(state)
+          end
+        end
+
+        context 'when the object is not in the specified state' do
+          let(:object) { Struct.new(:state).new(:one) }
+          let(:state) { :two }
+
+          it 'returns Failure, wrapping the state' do
+            expect(result).to be_a(Dry::Monads::Failure)
+            expect(result.failure).to eq(state)
+          end
+        end
+
+        context 'when the object is an invalid state' do
+          let(:object) { Struct.new(:state).new(:foo) }
+          let(:state) { :one }
+
+          it 'returns Failure, wrapping an InvalidState error' do
+            expect(result).to be_a(Dry::Monads::Failure)
+            expect(result.failure).to be_a(InvalidState)
+          end
+        end
+      end
     end
   end
 end
